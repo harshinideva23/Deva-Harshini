@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Learning Game</title>
+</head>
+<body>
+    <h1>Welcome to the Language Learning Game!</h1>
+
+    <form id="loginForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="button" onclick="login()">Login</button>
+        <button type="button" onclick="register()">Register</button>
+        <button type="button" onclick="logout()">Logout</button>
+    </form>
+
+    <div id="questionContainer" style="display: none;">
+        <h2>Question:</h2>
+        <p id="questionText"></p>
+        <label for="answer">Your Answer:</label>
+        <input type="text" id="answer" name="answer" required>
+        <br>
+        <button type="button" onclick="submitAnswer()">Submit Answer</button>
+    </div>
+
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+
+            // Fetch the first question after login
+            getQuestion();
+        }
+
+        async function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        }
+
+        async function logout() {
+            const response = await fetch('/logout', {
+                method: 'POST',
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        }
+
+        async function getQuestion() {
+            const response = await fetch('/get_question', {
+                method: 'GET',
+            });
+
+            const question = await response.json();
+
+            document.getElementById('questionText').innerText = question.question;
+            document.getElementById('questionContainer').style.display = 'block';
+        }
+
+        async function submitAnswer() {
+            const answer = document.getElementById('answer').value;
+            const questionId = 1;  // Assuming the question ID is 1 for simplicity
+
+            const response = await fetch('/submit_answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ answer, question_id: questionId }),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+
+            // Fetch the next question after submitting the answer
+            getQuestion();
+        }
+    </script>
+</body>
+</html>
